@@ -1,0 +1,6 @@
+Flask
+selenium==4.6.0
+pymongo
+python-dotenv
+webdriver_manager
+gunicorn
