@@ -51,6 +51,66 @@
         button:hover {
             background-color: #0056b3;
         }
+        .progress-bar {
+            width: 100%;
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 30px;
+            background-color: #007bff;
+            text-align: center;
+            line-height: 30px;
+            color: #fff;
+        }
+
+        #loading-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        #progress {
+            width: 0;
+            height: 100%;
+            background-color: #007bff;
+            border-radius: 10px;
+            animation: progressAnimation 30s linear forwards;
+        }
+
+        @keyframes progressAnimation {
+            0% {
+                width: 0;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        #processing-message {
+            margin-top: 10px;
+            color: #007bff;
+            font-weight: bold;
+            animation: fadeIn 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -58,8 +118,33 @@
         <form action="/result" method="post">
             <label for="input_text">Reg No:</label>
             <input type="text" id="input_text" name="input_text" required>
-            <button type="submit">Fetch Results</button>
+            <button type="submit" onclick="showProgressBar()">Fetch Results</button>
         </form>
+
+        <div class="progress_bar" id="progress_bar" style="display: none;">
+            <h1>Processing...</h1>
+            <div id="loading-bar">
+                <div id="progress"></div>
+            </div>
+            <div id="processing-message">Please wait while we fetch your data...</div>
+        </div>
     </div>
+
+    <script>
+        function showProgressBar() {
+            var progressBar = document.getElementById('progress_bar');
+            progressBar.style.display = 'block';
+        }
+
+        function showProgress() {
+            setTimeout(function() {
+                var progressBar = document.getElementById('progress');
+                var processingMessage = document.getElementById('processing-message');
+                progressBar.style.animation = 'none';
+                progressBar.style.width = '100%';
+                processingMessage.textContent = 'Processing complete! Wait a few seconds while we arrange your data!';
+            }, 3 * 5 * 1000); //1000 = 1 sec
+        }
+    </script>
 </body>
 </html>
