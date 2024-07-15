@@ -118,20 +118,12 @@ def calculate_results(reg_no):
         no_of_requests += 1
         
         try:
-            # chrome_options = webdriver.ChromeOptions()
-            # chrome_options.add_argument("--headless")
-            # chrome_options.add_argument("--no-sandbox")
-            # chrome_options.add_argument("--disable-dev-shm-usage")
-            # chrome_options.add_argument("--remote-debugging-port=9222")
-            # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-            
-            chrome_path = os.path.join(os.getcwd(), "chromedriver.exe")
-            chrome_options = Options()
+            chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
-            service = Service(chrome_path)
-            driver = webdriver.Chrome(service=service, options=chrome_options)
+            
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
                 
             driver.get("https://rvrjcce.ac.in/examcell/results/regnoresultsR.php")
             input_element = driver.find_element(By.CSS_SELECTOR, 'input[type="text"][style*="font-size:14px; color:red; width:100px;"]')
@@ -245,10 +237,12 @@ def result():
     reg_no = request.form['input_text']
     reg_no = reg_no.lower()
     name, results, tot_gpa, cumulative_gpa = calculate_results(reg_no)
+    result_type = None
     if name == "Invalid reg no":
         return f"Invalid reg no", 404
     elif name and results and tot_gpa and cumulative_gpa:
         print("new result")
+        result_type = "new result"
         store_results(name, reg_no, results, tot_gpa, cumulative_gpa)
     else:
         prev_result = reteive_previous_search_results(reg_no)
@@ -261,9 +255,8 @@ def result():
             results = prev_result.get("results")
             tot_gpa = prev_result.get("tot_gpa")
             cumulative_gpa = prev_result.get("cumulative_gpa")
-    return render_template('result.html', name=name, reg_no=reg_no, results=results, tot_gpa=tot_gpa, cumulative_gpa=cumulative_gpa, results_type="")
+    return render_template('result.html', name=name, reg_no=reg_no, results=results, tot_gpa=tot_gpa, cumulative_gpa=cumulative_gpa, results_type=result_type)
 
 
 if __name__ == '__main__':
-    # app.run(host='0.0.0.0', port=5000)
-    app.run()
+    app.run(host='0.0.0.0', port=5000)

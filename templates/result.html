@@ -72,10 +72,10 @@
                 <th>Reg no: {{reg_no}}</th>
             </tr>
         </table>
-        {% if results_type %}
-            <p>Main Server down, previous search results</p>
-        {% else %}
+        {% if "new result" in results_type %}
             <p>results saved to cloud</p>
+        {% else %}
+        <p>Main Server down, previous search results</p>
         {% endif %}
     </div>
     {% for semester, subjects in results.items() %}
