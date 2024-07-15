@@ -3,5 +3,5 @@ Flask==3.0.2
 pymongo==4.8.0
 python-dotenv==1.0.1
 requests==2.31.0
-bs4==4.12.2
+bs4
 gunicorn==21.2.0
