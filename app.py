@@ -3,11 +3,8 @@ import re
 import os
 import time
 from dotenv import load_dotenv
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
+import requests
+from bs4 import BeautifulSoup
 from collections import defaultdict
 from pymongo import MongoClient
 
@@ -118,64 +115,68 @@ def calculate_results(reg_no):
         no_of_requests += 1
         
         try:
-            chrome_options = webdriver.ChromeOptions()
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+            url = "https://rvrjcce.ac.in/examcell/results/regnoresultsR1.php?q=" + reg_no
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.content, 'html.parser')
+                div_content = soup.find('div', class_='wrapper col4')
                 
-            driver.get("https://rvrjcce.ac.in/examcell/results/regnoresultsR.php")
-            input_element = driver.find_element(By.CSS_SELECTOR, 'input[type="text"][style*="font-size:14px; color:red; width:100px;"]')
-            input_element.send_keys(reg_no)
-            driver.implicitly_wait(30)
-            div_element = driver.find_element(By.ID, 'txtHint')
-            retrieved_text = div_element.text
-            match = re.search(r"Name : (.+)", retrieved_text)
-            if match:
-                name = match.group(1)
+                if div_content:
+                    print("content retrived")
+                    first_table = div_content.find('table')
+                    first_row = first_table.find('tr') 
+                    tds = first_row.find_all('td')
+                    name = re.search(r'Name : (.+)', tds[0].text).group(1)
+                    matches = []
+                    if first_table:
+                        rows = first_table.find_all('tr')
+                        for row in rows[2:]:
+                            cols = row.find_all('td')
+                            if len(cols) >= 2:
+                                semester_number = cols[0].text.strip().split()[1]
+                                grades = ' '.join(col.text.strip() for col in cols[1:])
+                                matches.append((semester_number, grades))
+
+                    subjects = ["Sub1", "Sub2", "Sub3", "Sub4", "Sub5", "Sub6", "Sub7"]
+                    labs = ["Lab1", "Lab2", "Lab3", "Lab4", "Lab5", "Lab6"]
+                    
+                    grades = defaultdict(dict)
+                    
+                    for match in matches:
+                        semester = match[0]
+                        grades_list = match[1].split()
+                        for i, grade in enumerate(grades_list):
+                            if i < len(subjects):
+                                subject = subjects[i]
+                            else:
+                                subject = labs[i - len(subjects)]
+                            grades[semester][subject] = grade
+
+                    grades = dict(grades)
+                    for semester, subjects in grades.items():
+                        results[semester] = {}
+                        for subject, grade in subjects.items():
+                            if grade != "--":
+                                results[semester][subject] = grade
+                    
+                    sum_of_tot_cred = 0
+                    for sem in results.keys():
+                        sem_gpa = 0
+                        for sub in results[sem].keys():
+                            sem_gpa += credits_r20_cse[sem][sub]*grade_to_points[results[sem][sub]]
+                        sem_gpa = sem_gpa/sum(credits_r20_cse[sem].values())
+                        tot_gpa[sem] = sem_gpa
+                        cur_cred = sum(credits_r20_cse[sem].values())
+                        sum_of_tot_cred += cur_cred
+                        sum_of_gpa_cred = 0
+                        for sem, gpa in tot_gpa.items():
+                            sum_of_gpa_cred += sum(credits_r20_cse[sem].values())*gpa
+                        cumulative_gpa[sem] = round(sum_of_gpa_cred/sum_of_tot_cred, 2)
+                else:
+                    print( "No content found in div with id 'txtHint'")
             else:
-                name = ""
-            if "NOT FOUND" in retrieved_text:
-                return "Invalid reg no", {}, {}, {}
-            
-            pattern = re.compile(r'Semester (\w+) \[.*?\](.*)')
-            matches = pattern.findall(retrieved_text)
-            subjects = ["Sub1", "Sub2", "Sub3", "Sub4", "Sub5", "Sub6", "Sub7"]
-            labs = ["Lab1", "Lab2", "Lab3", "Lab4", "Lab5", "Lab6"]
-
-            grades = defaultdict(dict)
-
-            for match in matches:
-                semester = match[0]
-                grades_list = match[1].split()
-                for i, grade in enumerate(grades_list):
-                    if i < len(subjects):
-                        subject = subjects[i]
-                    else:
-                        subject = labs[i - len(subjects)]
-                    grades[semester][subject] = grade
-
-            grades = dict(grades)
-            for semester, subjects in grades.items():
-                results[semester] = {}
-                for subject, grade in subjects.items():
-                    if grade != "--":
-                        results[semester][subject] = grade
-            
-            sum_of_tot_cred = 0
-            for sem in results.keys():
-                sem_gpa = 0
-                for sub in results[sem].keys():
-                    sem_gpa += credits_r20_cse[sem][sub]*grade_to_points[results[sem][sub]]
-                sem_gpa = sem_gpa/sum(credits_r20_cse[sem].values())
-                tot_gpa[sem] = sem_gpa
-                cur_cred = sum(credits_r20_cse[sem].values())
-                sum_of_tot_cred += cur_cred
-                sum_of_gpa_cred = 0
-                for sem, gpa in tot_gpa.items():
-                    sum_of_gpa_cred += sum(credits_r20_cse[sem].values())*gpa
-                cumulative_gpa[sem] = round(sum_of_gpa_cred/sum_of_tot_cred, 2)
+                print( "Error: Unable to fetch data")
         except Exception as error:
             print("Failed to reach server", error)
             
