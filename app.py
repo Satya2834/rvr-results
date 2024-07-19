@@ -116,7 +116,7 @@ def ping_server():
             print("Server pinged successfully at: ", x)
         except requests.RequestException as e:
             print(f"Error pinging server: {e} at: ", x)
-        time.sleep(10 * 60) # 10 min
+        time.sleep(5 * 60) # 5 min
 
 def calculate_results(reg_no):
     tot_gpa = {}
