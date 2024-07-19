@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from collections import defaultdict
 from pymongo import MongoClient
-import threading
+from multiprocessing import Process
 import datetime
 
 load_dotenv()
@@ -116,7 +116,7 @@ def ping_server():
             print("Server pinged successfully at: ", x)
         except requests.RequestException as e:
             print(f"Error pinging server: {e} at: ", x)
-        time.sleep(5 * 60) # 5 min
+        time.sleep(60) # 10 min
 
 def calculate_results(reg_no):
     tot_gpa = {}
@@ -277,7 +277,7 @@ def result():
 
 
 if __name__ == '__main__':
-    ping_thread = threading.Thread(target=ping_server)
-    ping_thread.daemon = True
-    ping_thread.start()
+    p = Process(target=ping_server)
+    p.start()
     app.run(host='0.0.0.0', port=5000)
+    p.join()
