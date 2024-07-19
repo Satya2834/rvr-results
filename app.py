@@ -7,6 +7,8 @@ import requests
 from bs4 import BeautifulSoup
 from collections import defaultdict
 from pymongo import MongoClient
+import threading
+import datetime
 
 load_dotenv()
 
@@ -105,6 +107,17 @@ credits_r20_cse = {
     }
 }
 
+def ping_server():
+    URL = "https://rvr-results.onrender.com/ping/"
+    while True:
+        x = datetime.datetime.now()
+        try:
+            requests.get(URL)
+            print("Server pinged successfully at: ", x)
+        except requests.RequestException as e:
+            print(f"Error pinging server: {e} at: ", x)
+        time.sleep(10 * 60) # 10 min
+
 def calculate_results(reg_no):
     tot_gpa = {}
     cumulative_gpa = {}
@@ -137,7 +150,7 @@ def calculate_results(reg_no):
                                 semester_number = cols[0].text.strip().split()[1]
                                 grades = ' '.join(col.text.strip() for col in cols[1:])
                                 matches.append((semester_number, grades))
-
+                    print("=========\n", matches, "\n===========")
                     subjects = ["Sub1", "Sub2", "Sub3", "Sub4", "Sub5", "Sub6", "Sub7"]
                     labs = ["Lab1", "Lab2", "Lab3", "Lab4", "Lab5", "Lab6"]
                     
@@ -233,6 +246,10 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/ping')
+def ping():
+    return f'pinging server', 200
+
 @app.route('/result', methods=['POST'])
 def result():
     reg_no = request.form['input_text']
@@ -260,4 +277,7 @@ def result():
 
 
 if __name__ == '__main__':
+    ping_thread = threading.Thread(target=ping_server)
+    ping_thread.daemon = True
+    ping_thread.start()
     app.run(host='0.0.0.0', port=5000)
