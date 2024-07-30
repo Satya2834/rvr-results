@@ -7,8 +7,6 @@ import requests
 from bs4 import BeautifulSoup
 from collections import defaultdict
 from pymongo import MongoClient
-from multiprocessing import Process
-import datetime
 
 load_dotenv()
 
@@ -107,16 +105,342 @@ credits_r20_cse = {
     }
 }
 
-def ping_server():
-    URL = "https://rvr-results.onrender.com/ping/"
-    while True:
-        x = datetime.datetime.now()
-        try:
-            requests.get(URL)
-            print("Server pinged successfully at: ", x)
-        except requests.RequestException as e:
-            print(f"Error pinging server: {e} at: ", x)
-        time.sleep(60) # 10 min
+credits_r20_cse_ai_ml = {
+    "I": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 3,
+        "Lab4": 1.5,
+        "Lab5": 0
+    },
+    "II": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 2,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 1,
+        "Lab5": 0
+    },
+    "III": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2,
+        "Lab5": 0
+    },
+    "IV": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2,
+        "Lab5": 0
+    },
+    "V": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2
+    },
+    "VI": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2
+    },
+    "VII": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Sub6": 3,
+        "Lab1": 3,
+        "Lab2": 2
+    },
+    "VIII": {
+        "Lab1": 12
+    }
+};
+
+credits_r20_eee = {
+    "I": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 3,
+        "Lab4": 1.5,
+        "Lab5": 0
+    },
+    "II": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 3,
+        "Lab4": 1.5,
+        "Lab5": 0
+    },
+    "III": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2,
+        "Lab5": 0
+    },
+    "IV": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2,
+        "Lab5": 0
+    },
+    "V": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2
+    },
+    "VI": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2
+    },
+    "VII": {
+        "Sub1": 2,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1,
+        "Lab3": 2
+    },
+    "VIII": {
+        "Lab1": 12
+    }
+};
+
+credits_r20_ece = {
+    "I": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Lab1": 1.5,
+        "Lab2": 1,
+        "Lab3": 3,
+        "Lab4": 2,
+        "Lab5": 0
+    },
+    "II": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Lab1": 1.5,
+        "Lab2": 2,
+        "Lab3": 3,
+        "Lab4": 1,
+        "Lab5": 0
+    },
+    "III": {
+        "Sub1": 3,
+        "Sub2": 4,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1,
+        "Lab2": 1.5,
+        "Lab3": 1,
+        "Lab4": 2,
+        "Lab5": 0
+    },
+    "IV": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 4,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1,
+        "Lab3": 1,
+        "Lab4": 2,
+        "Lab5": 0
+    },
+    "V": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 2,
+        "Lab3": 1.5,
+        "Lab4": 2
+    },
+    "VI": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1,
+        "Lab4": 2
+    },
+    "VII": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Sub6": 3,
+        "Lab1": 3,
+        "Lab2": 2
+    },
+    "VIII": {
+        "Lab1": 12
+    }
+};
+
+credits_r20_civil = {
+    "I": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 3,
+        "Lab4": 1.5,
+        "Lab5": 0
+    },
+    "II": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 3,
+        "Lab4": 1.5,
+        "Lab5": 0
+    },
+    "III": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2,
+        "Lab5": 0
+    },
+    "IV": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2,
+        "Lab5": 0
+    },
+    "V": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2
+    },
+    "VI": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Lab1": 1.5,
+        "Lab2": 1.5,
+        "Lab3": 1.5,
+        "Lab4": 2
+    },
+    "VII": {
+        "Sub1": 3,
+        "Sub2": 3,
+        "Sub3": 3,
+        "Sub4": 3,
+        "Sub5": 3,
+        "Sub6": 3,
+        "Lab1": 3,
+        "Lab2": 2
+    },
+    "VIII": {
+        "Lab1": 12
+    }
+};
 
 def calculate_results(reg_no):
     tot_gpa = {}
@@ -141,6 +465,22 @@ def calculate_results(reg_no):
                     first_row = first_table.find('tr') 
                     tds = first_row.find_all('td')
                     name = re.search(r'Name : (.+)', tds[0].text).group(1)
+                    
+                    if not name:
+                        raise Exception("No Regno found")
+                    
+                    credits = ''
+                    if 'cm' in reg_no:
+                        credits = credits_r20_cse_ai_ml
+                    elif 'ec' in reg_no:
+                        credits = credits_r20_ece
+                    elif 'ee' in reg_no:
+                        credits = credits_r20_eee
+                    elif 'ce' in reg_no:
+                        credits = credits_r20_civil
+                    else:
+                        credits = credits_r20_cse
+                    
                     matches = []
                     if first_table:
                         rows = first_table.find_all('tr')
@@ -177,21 +517,21 @@ def calculate_results(reg_no):
                     for sem in results.keys():
                         sem_gpa = 0
                         for sub in results[sem].keys():
-                            sem_gpa += credits_r20_cse[sem][sub]*grade_to_points[results[sem][sub]]
-                        sem_gpa = sem_gpa/sum(credits_r20_cse[sem].values())
+                            sem_gpa += credits[sem][sub]*grade_to_points[results[sem][sub]]
+                        sem_gpa = sem_gpa/sum(credits[sem].values())
                         tot_gpa[sem] = sem_gpa
-                        cur_cred = sum(credits_r20_cse[sem].values())
+                        cur_cred = sum(credits[sem].values())
                         sum_of_tot_cred += cur_cred
                         sum_of_gpa_cred = 0
                         for sem, gpa in tot_gpa.items():
-                            sum_of_gpa_cred += sum(credits_r20_cse[sem].values())*gpa
+                            sum_of_gpa_cred += sum(credits[sem].values())*gpa
                         cumulative_gpa[sem] = round(sum_of_gpa_cred/sum_of_tot_cred, 2)
                 else:
                     print( "No content found in div with id 'txtHint'")
             else:
                 print( "Error: Unable to fetch data")
         except Exception as error:
-            print("Failed to reach server", error)
+            name = error
             
         if cumulative_gpa:
             break
@@ -199,7 +539,7 @@ def calculate_results(reg_no):
         time.sleep(5)
         
     else:
-        return "server down", {}, {}, {}
+        return name, {}, {}, {}
     for key in tot_gpa:
         tot_gpa[key] = round(tot_gpa[key], 2)
     return name, results, tot_gpa, cumulative_gpa
@@ -246,18 +586,14 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/ping')
-def ping():
-    return f'pinging server', 200
-
 @app.route('/result', methods=['POST'])
 def result():
     reg_no = request.form['input_text']
     reg_no = reg_no.lower()
     name, results, tot_gpa, cumulative_gpa = calculate_results(reg_no)
     result_type = None
-    if name == "Invalid reg no":
-        return f"Invalid reg no", 404
+    if not results:
+        return name, 404
     elif name and results and tot_gpa and cumulative_gpa:
         print("new result")
         result_type = "new result"
@@ -277,7 +613,4 @@ def result():
 
 
 if __name__ == '__main__':
-    p = Process(target=ping_server)
-    p.start()
     app.run(host='0.0.0.0', port=5000)
-    p.join()

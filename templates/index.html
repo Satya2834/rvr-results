@@ -46,7 +46,7 @@
             border: none;
             padding: 10px 20px;
             border-radius: 4px;
-            cursor: pointer;
+            cursor : not-allowed;
         }
         button:hover {
             background-color: #0056b3;
@@ -118,7 +118,7 @@
         <form action="/result" method="post">
             <label for="input_text">Reg No:</label>
             <input type="text" id="input_text" name="input_text" required>
-            <button type="submit" onclick="showProgressBar()">Fetch Results</button>
+            <button type="submit" id="fetchButton" onclick="showProgressBar()" disabled>Fetch Results</button>
         </form>
 
         <div class="progress_bar" id="progress_bar" style="display: none;">
@@ -145,6 +145,18 @@
                 processingMessage.textContent = 'Processing complete! Wait a few seconds while we arrange your data!';
             }, 3 * 5 * 1000); //1000 = 1 sec
         }
+
+        document.getElementById("input_text").addEventListener('input', () => {
+            const reg_no = document.getElementById("input_text").value.length;
+            const res_button = document.getElementById("fetchButton");
+            if (reg_no==8 || reg_no==9){
+                res_button.style.cursor = 'pointer';
+                res_button.disabled = false;
+            } else {
+                res_button.style.cursor = 'not-allowed';
+                res_button.disabled = true;
+            }
+        });
     </script>
 </body>
 </html>
